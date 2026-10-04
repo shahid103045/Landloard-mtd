@@ -238,7 +238,7 @@ function downloadExcel(){
   let wb=XLSX.utils.book_new(); let digitalRows=[];
   digitalRows.push(['Digital_Records - HMRC MTD Digital Record - ']);
   digitalRows.push(['Quarter Filter', currentQuarterFilter]); digitalRows.push(['Generated', new Date().toLocaleString()]);
-  digitalRows.push(['Logic', 'ONE ROW = ONE TRANSACTION = FULL DIGITAL RECORD  - Tax on RUNNING TOTAL Sir']); digitalRows.push([]);
+  digitalRows.push(['Logic', 'ONE ROW = ONE TRANSACTION = FULL DIGITAL RECORD  - Tax on RUNNING TOTAL ']); digitalRows.push([]);
   digitalRows.push(['Date','Type','Category','Gross','Tax','After Tax','ID']);
   let cumulativeProfit=0, prevTotalTax=0, totalIncome=0, totalExpenses=0;
   data.forEach(t=>{
