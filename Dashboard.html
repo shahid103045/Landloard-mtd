@@ -236,7 +236,7 @@ function downloadExcel(){
   let rawData=(currentQuarterFilter==='ALL'||currentQuarterFilter==='ANNUAL') ? tx.slice() : tx.filter(t=>t.quarter===currentQuarterFilter);
   let data=dedupTxArray(rawData); data.sort((a,b)=> new Date(a.date) - new Date(b.date));
   let wb=XLSX.utils.book_new(); let digitalRows=[];
-  digitalRows.push(['Digital_Records - HMRC MTD Digital Record - META BLUE FINAL Sir']);
+  digitalRows.push(['Digital_Records - HMRC MTD Digital Record - ']);
   digitalRows.push(['Quarter Filter', currentQuarterFilter]); digitalRows.push(['Generated', new Date().toLocaleString()]);
   digitalRows.push(['Logic', 'ONE ROW = ONE TRANSACTION = FULL DIGITAL RECORD Sir - Tax on RUNNING TOTAL Sir']); digitalRows.push([]);
   digitalRows.push(['Date','Type','Category','Gross','Tax','After Tax','ID']);
