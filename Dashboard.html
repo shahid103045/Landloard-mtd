@@ -270,7 +270,7 @@ function downloadExcel(){
   XLSX.writeFile(wb,'META_BLUE_FINAL_2TABS_'+currentQuarterFilter+'.xlsx');
 }
 function downloadExtra(){
-  if(tx.length==0){alert('No transactions Sir');return;}
+  if(tx.length==0){alert('No transactions ');return;}
   let dataDedup=dedupTxArray(tx).sort((a,b)=> new Date(a.date) - new Date(b.date));
   let data=(currentQuarterFilter==='ALL'||currentQuarterFilter==='ANNUAL')?dataDedup:dataDedup.filter(t=>t.quarter===currentQuarterFilter);
   let wb=XLSX.utils.book_new(); let rows=[['EXTRA REPORT - FINAL Sir'],['Date','Type','Category','Gross','Tax (Running)','Owner','Quarter']];
