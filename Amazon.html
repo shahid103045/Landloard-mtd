@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazon - Walmart Tracker - Buy or Not</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;padding:12px;background:#f2f4f7;color:#111}
+h1{font-size:22px;margin:6px 0 2px}
+p{font-size:14px;color:#444}
+.card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:14px;margin:10px 0}
+label{font-size:13px;font-weight:bold;display:block;margin-top:10px}
+input,select{width:100%;padding:11px;margin-top:5px;border:1px solid #aaa;border-radius:8px;font-size:16px;box-sizing:border-box;background:#fff}
+button{width:100%;padding:13px;margin-top:12px;border:0;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer}
+.btn-add{background:#0b5ed7;color:#fff}
+.btn-excel{background:#198754;color:#fff}
+.btn-clear{background:#eee;color:#111}
+.btn-small{width:auto;padding:7px 10px;font-size:13px;margin:2px;border-radius:7px}
+.btn-edit{background:#ffc107;color:#111}
+.btn-del{background:#dc3545;color:#fff}
+.btn-dup{background:#6c757d;color:#fff}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+th,td{border:1px solid #ccc;padding:8px;text-align:left;word-wrap:break-word;vertical-align:top}
+th{background:#131921;color:#fff}
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.box{background:#f8f9fa;border:1px solid #ddd;border-radius:8px;padding:10px;text-align:center}
+.box b{font-size:18px;display:block}
+.note{font-size:13px;color:#555;background:#fff8d6;border:1px solid #e6d88a;padding:10px;border-radius:8px}
+.small{font-size:12px;color:#666}
+.row{display:flex;gap:8px}.row>div{flex:1}
+.green{color:#198754;font-weight:bold}.red{color:#dc3545;font-weight:bold}.orange{color:#e67e00;font-weight:bold}
+.decision{padding:10px;border-radius:8px;text-align:center;font-weight:bold;font-size:16px;margin-top:12px}
+.dec-buy{background:#d4edda;color:#155724;border:1px solid #a3d9a5}
+.dec-check{background:#fff3cd;color:#856404;border:1px solid #ffe69c}
+.dec-nobuy{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.amazonBox{background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:10px;margin-top:10px;font-size:14px;line-height:1.7}
+</style>
+</head>
+<body>
+<h1>Amazon - Walmart Tracker</h1>
+<p>Buy from Walmart - Sell on Amazon - Shows BUY or DON'T BUY</p>
+<div class="note">Download first, open in Chrome - Downloads - tap this file. Same clean version, no square boxes.</div>
+
+<div class="card">
+<h3 id="formTitle">Add New Product - Check Before You Buy</h3>
+<label>Date</label>
+<input type="date" id="date">
+<label>Product Name</label>
+<input type="text" id="name" placeholder="Example: Toy Car">
+<label>Walmart Link or Notes (optional)</label>
+<input type="text" id="link" placeholder="Paste Walmart link">
+<div class="row"><div><label>Walmart Buy Price (per 1 unit) USD</label><input type="number" id="buy" placeholder="12.50" oninput="preview()"></div>
+<div><label>Amazon Sell Price (per 1 unit) USD</label><input type="number" id="sell" placeholder="29.99" oninput="preview()"></div></div>
+<div class="row"><div><label>Quantity</label><input type="number" id="qty" value="1"></div>
+<div><label>Amazon Referral Fee %</label><input type="number" id="feePct" value="15" oninput="preview()"></div></div>
+<div class="row"><div><label>FBA + Shipping to Amazon (per unit) USD</label><input type="number" id="fba" value="4.50" oninput="preview()"></div>
+<div><label>Other Cost (per unit) USD</label><input type="number" id="other" value="0" oninput="preview()"></div></div>
+<label>Status</label>
+<select id="status"><option>Checking - Not Bought Yet</option><option>Buying from Walmart</option><option>Shipping to Amazon</option><option>Live on Amazon</option><option>Sold</option><option>Returned</option></select>
+
+<div id="previewBox"></div>
+
+<button class="btn-add" id="mainBtn" onclick="saveProduct()">Add Product</button>
+<button class="btn-clear" onclick="cancelEdit()" id="cancelBtn" style="display:none">Cancel Edit</button>
+<p class="small">Rule we use: Profit USD 5+ and ROI 40%+ = BUY GOOD. Profit USD 3 to 5 = CHECK. Profit less than USD 3 or loss = DON'T BUY.</p>
+</div>
+
+<div class="card">
+<h3>Summary</h3>
+<div class="summary">
+<div class="box">Total Products<b id="sCount">0</b></div>
+<div class="box">Money Spent at Walmart<b id="sSpent">USD 0.00</b></div>
+<div class="box">Expected Sales on Amazon<b id="sSales">USD 0.00</b></div>
+<div class="box">Total Profit<b id="sProfit">USD 0.00</b></div>
+</div>
+<p class="small" id="sAvg">Average ROI: 0% - Average Margin: 0%</p>
+<label>Search Product</label>
+<input type="text" id="search" placeholder="Type product name..." oninput="render()">
+<label>Filter by Decision</label>
+<select id="filterDec" onchange="render()"><option>All Products</option><option>BUY - Good Profit</option><option>CHECK - Low Profit</option><option>DON'T BUY - Loss / Very Low</option></select>
+<label>Filter by Status</label>
+<select id="filterStatus" onchange="render()"><option>All Status</option><option>Checking - Not Bought Yet</option><option>Buying from Walmart</option><option>Shipping to Amazon</option><option>Live on Amazon</option><option>Sold</option><option>Returned</option></select>
+</div>
+
+<div class="card">
+<h3>All Products - Amazon Side + Decision</h3>
+<div id="tableWrap"></div>
+<button class="btn-excel" onclick="downloadCSV()">Download Excel / CSV</button>
+<button class="btn-clear" onclick="clearAll()">Clear All Products</button>
+</div>
+
+<script>
+let items = JSON.parse(localStorage.getItem('amz_wal_tracker_v2')||'[]');
+let editIndex = -1;
+function money(n){ return 'USD ' + Number(n||0).toFixed(2); }
+function calc(it){
+  let referral = it.sell * it.feePct / 100;
+  let amazonPayout = it.sell - referral - it.fba;
+  let totalCost = it.buy + referral + it.fba + it.other;
+  let profit = it.sell - totalCost;
+  let totalProfit = profit * it.qty;
+  let roi = it.buy>0 ? profit/it.buy*100 : 0;
+  let margin = it.sell>0 ? profit/it.sell*100 : 0;
+  let decision='', decClass='';
+  if(profit < 0){ decision="DON'T BUY - Loss"; decClass='dec-nobuy'; }
+  else if(profit < 3 || roi < 25){ decision="CHECK - Low Profit"; decClass='dec-check'; }
+  else if(profit >= 5 && roi >= 40){ decision="BUY - Good Profit"; decClass='dec-buy'; }
+  else { decision="BUY - OK Profit"; decClass='dec-buy'; }
+  return {referral, amazonPayout, totalCost, profit, totalProfit, roi, margin, decision, decClass};
+}
+function preview(){
+  let buy=parseFloat(document.getElementById('buy').value)||0;
+  let sell=parseFloat(document.getElementById('sell').value)||0;
+  if(!buy || !sell){ document.getElementById('previewBox').innerHTML=''; return; }
+  let it={buy:buy,sell:sell,feePct:parseFloat(document.getElementById('feePct').value)||15,fba:parseFloat(document.getElementById('fba').value)||0,other:parseFloat(document.getElementById('other').value)||0,qty:parseInt(document.getElementById('qty').value)||1};
+  let c=calc(it);
+  document.getElementById('previewBox').innerHTML =
+    '<div class="amazonBox"><b>AMAZON SIDE - What Amazon Needs / Takes:</b><br>'+
+    'Amazon Sell Price: '+money(sell)+'<br>'+
+    'Minus Amazon Referral Fee: - '+money(c.referral)+'<br>'+
+    'Minus FBA + Shipping: - '+money(it.fba)+'<br>'+
+    '<b>Amazon Payout to You: '+money(c.amazonPayout)+'</b><br><br>'+
+    '<b>WALMART SIDE:</b><br>Walmart Buy Price: '+money(buy)+' + Other: '+money(it.other)+'<br>'+
+    'Your Profit per unit: <b>'+money(c.profit)+'</b> - ROI '+c.roi.toFixed(1)+'% - Margin '+c.margin.toFixed(1)+'%</div>'+
+    '<div class="decision '+c.decClass+'">'+c.decision+'</div>';
+}
+function render(){
+  let q=document.getElementById('search').value.toLowerCase();
+  let fs=document.getElementById('filterStatus').value;
+  let fd=document.getElementById('filterDec').value;
+  let filtered=items.filter((it,i)=>{ it._idx=i; let c=calc(it); let decShort = c.decision.includes("Good")||c.decision.includes("OK") ? "BUY - Good Profit" : c.decision.includes("CHECK") ? "CHECK - Low Profit" : "DON'T BUY - Loss / Very Low"; return (!q||it.name.toLowerCase().includes(q)) && (fs==='All Status'||it.status===fs) && (fd==='All Products'||decShort===fd); });
+  let spent=0,sales=0,profitSum=0,roiSum=0,marginSum=0;
+  items.forEach(it=>{ let c=calc(it); spent+=it.buy*it.qty; sales+=it.sell*it.qty; profitSum+=c.totalProfit; roiSum+=c.roi; marginSum+=c.margin; });
+  document.getElementById('sCount').textContent=items.length;
+  document.getElementById('sSpent').textContent=money(spent);
+  document.getElementById('sSales').textContent=money(sales);
+  document.getElementById('sProfit').textContent=money(profitSum);
+  document.getElementById('sAvg').textContent= items.length ? 'Average ROI: '+(roiSum/items.length).toFixed(1)+'% - Average Margin: '+(marginSum/items.length).toFixed(1)+'%' : 'Average ROI: 0% - Average Margin: 0%';
+  if(!filtered.length){ document.getElementById('tableWrap').innerHTML='<p>No products yet. Add your first product above.</p>'; return; }
+  let h='<table><tr><th>Product + Decision</th><th>Amazon Side</th><th>Walmart + Profit</th><th>Status</th><th>Action</th></tr>';
+  filtered.forEach(it=>{
+    let c=calc(it);
+    let pc=c.profit>=0?'green':'red';
+    h+='<tr><td><b>'+it.name+'</b><br><span class="small">'+it.date+'<br>'+(it.link||'')+'</span><br><div style="margin-top:6px;font-size:12px;padding:6px;border-radius:6px" class="'+c.decClass+'">'+c.decision+'</div></td>';
+    h+='<td>Sell: '+money(it.sell)+'<br><span class="small">Amazon Fee: '+money(c.referral)+'<br>FBA: '+money(it.fba)+'<br><b>Payout: '+money(c.amazonPayout)+'</b></span></td>';
+    h+='<td>Buy: '+money(it.buy)+'<br>Other: '+money(it.other)+'<br><span class="'+pc+'"><b>Profit: '+money(c.profit)+' / unit</b><br>ROI '+c.roi.toFixed(1)+'%<br>Total: '+money(c.totalProfit)+' ('+it.qty+' pcs)</span></td>';
+    h+='<td>'+it.status+'</td>';
+    h+='<td><button class="btn-small btn-edit" onclick="startEdit('+it._idx+')">Edit</button><br><button class="btn-small btn-dup" onclick="dupItem('+it._idx+')">Duplicate / Change Product</button><br><button class="btn-small btn-del" onclick="delItem('+it._idx+')">Delete</button></td></tr>';
+  });
+  h+='</table>';
+  document.getElementById('tableWrap').innerHTML=h;
+}
+function saveProduct(){
+  let name=document.getElementById('name').value.trim();
+  let buy=parseFloat(document.getElementById('buy').value);
+  let sell=parseFloat(document.getElementById('sell').value);
+  if(!name){ alert('Please enter Product Name'); return; }
+  if(!buy || !sell){ alert('Please enter Buy Price and Sell Price'); return; }
+  let it={ date: document.getElementById('date').value || new Date().toISOString().slice(0,10),
+    name:name, link: document.getElementById('link').value.trim(),
+    buy:buy, sell:sell, qty: parseInt(document.getElementById('qty').value)||1,
+    feePct: parseFloat(document.getElementById('feePct').value)||15,
+    fba: parseFloat(document.getElementById('fba').value)||0,
+    other: parseFloat(document.getElementById('other').value)||0,
+    status: document.getElementById('status').value };
+  if(editIndex>=0){ items[editIndex]=it; editIndex=-1; document.getElementById('formTitle').textContent='Add New Product - Check Before You Buy'; document.getElementById('mainBtn').textContent='Add Product'; document.getElementById('cancelBtn').style.display='none'; }
+  else items.push(it);
+  localStorage.setItem('amz_wal_tracker_v2', JSON.stringify(items));
+  document.getElementById('name').value=''; document.getElementById('buy').value=''; document.getElementById('sell').value=''; document.getElementById('link').value=''; document.getElementById('qty').value='1'; document.getElementById('previewBox').innerHTML='';
+  render();
+}
+function startEdit(i){
+  let it=items[i]; editIndex=i;
+  document.getElementById('date').value=it.date; document.getElementById('name').value=it.name; document.getElementById('link').value=it.link||'';
+  document.getElementById('buy').value=it.buy; document.getElementById('sell').value=it.sell; document.getElementById('qty').value=it.qty;
+  document.getElementById('feePct').value=it.feePct; document.getElementById('fba').value=it.fba; document.getElementById('other').value=it.other; document.getElementById('status').value=it.status;
+  document.getElementById('formTitle').textContent='Edit Product - Change and Save'; document.getElementById('mainBtn').textContent='Save Changes'; document.getElementById('cancelBtn').style.display='block';
+  preview(); window.scrollTo({top:0, behavior:'smooth'});
+}
+function dupItem(i){
+  let it=items[i];
+  document.getElementById('name').value=it.name+' - New';
+  document.getElementById('buy').value=it.buy; document.getElementById('sell').value=it.sell; document.getElementById('qty').value=it.qty;
+  document.getElementById('feePct').value=it.feePct; document.getElementById('fba').value=it.fba; document.getElementById('other').value=it.other;
+  document.getElementById('status').value='Checking - Not Bought Yet';
+  document.getElementById('formTitle').textContent='Change Product - New Product From Old One'; document.getElementById('mainBtn').textContent='Add As New Product';
+  editIndex=-1; document.getElementById('cancelBtn').style.display='block'; preview(); window.scrollTo({top:0, behavior:'smooth'});
+}
+function cancelEdit(){ editIndex=-1; document.getElementById('formTitle').textContent='Add New Product - Check Before You Buy'; document.getElementById('mainBtn').textContent='Add Product'; document.getElementById('cancelBtn').style.display='none'; document.getElementById('name').value=''; document.getElementById('buy').value=''; document.getElementById('sell').value=''; document.getElementById('previewBox').innerHTML=''; }
+function delItem(i){ if(confirm('Delete this product?')){ items.splice(i,1); localStorage.setItem('amz_wal_tracker_v2', JSON.stringify(items)); render(); } }
+function clearAll(){ if(confirm('Clear all products?')){ items=[]; localStorage.removeItem('amz_wal_tracker_v2'); render(); } }
+function downloadCSV(){
+  let csv='Date,Product Name,Walmart Link,Buy Price,Sell Price,Qty,Amazon Fee %,FBA,Other,Amazon Fee USD,Amazon Payout,Profit per Unit,Total Profit,ROI %,Margin %,Decision,Status\n';
+  items.forEach(it=>{ let c=calc(it); csv+= it.date+',"'+it.name.replace(/"/g,'')+'","'+(it.link||'').replace(/"/g,'')+'",'+it.buy+','+it.sell+','+it.qty+','+it.feePct+','+it.fba+','+it.other+','+c.referral.toFixed(2)+','+c.amazonPayout.toFixed(2)+','+c.profit.toFixed(2)+','+c.totalProfit.toFixed(2)+','+c.roi.toFixed(1)+','+c.margin.toFixed(1)+',"'+c.decision+'",'+it.status+'\n'; });
+  let blob=new Blob([csv],{type:'text/csv'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='Amazon_Walmart_Tracker.csv'; a.click();
+}
+document.getElementById('date').value=new Date().toISOString().slice(0,10);
+render();
+</script>
+</body>
+</html>
